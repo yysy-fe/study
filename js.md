@@ -5,3 +5,6 @@
 0.2 => 0.0011 0011 0011 0011…（无限循环）  
 由于不同的IEEE标准，会对小数部分进行截取，截取后相加再转成10进制自然有差异。  
 解法： Math.abs(0.1 + 0.2 - 0.3) <= Number.EPSILON
+
+### 老的浏览器undefined是变量，值为undefined 可修改  
+包装方法 isUndefined: p => return p === void(0)
