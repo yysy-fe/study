@@ -7,3 +7,7 @@ background:-webkit-image-set(
   url('3x.png') 3x  
 );  
 ```
+
+### visiblity:hidden 和 display:none 区别
+* visiblity:hidden 的子元素设置成 visible 后，子元素可见；display：none 子元素必隐藏
+* visiblity:hidden 元素占页面空间，显隐操作只触发重绘； display：none元素不占空间，显隐操作触发重排、重绘
