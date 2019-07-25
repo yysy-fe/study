@@ -19,3 +19,6 @@ background:-webkit-image-set(
 >counter-increment: count1 5;
 * counter：在content属性中使用
 >content: counter(item)
+
+### vertical-align 
+![vertical-align](https://static001.geekbang.org/resource/image/aa/e3/aa6611b00f71f606493f165294410ee3.png)
