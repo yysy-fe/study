@@ -15,3 +15,5 @@
 * A接收到Y，同时给B传输Y+1告诉B，A能识别B的数据，接下来可以进行数据传输并且达到双方有效接收
 
 ![](https://img-blog.csdn.net/20180717204202563?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM4OTUwMzE2/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+>关闭时四次握手，主要是在关闭链接时，服务器收到FIN报文时，很可能不会立即关闭SOCKET，所以只先回复ACK报文，告诉客户端，你的FIN报文我收到了，等到服务器所有报文都发送完了，才能发送FIN报文。所以比建立链接时多一步
