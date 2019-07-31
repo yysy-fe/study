@@ -9,4 +9,9 @@
 * 第二次握手：服务器收到SYN报文段进行确认，设置ack=Z=X(接受到seq的值)+1；同事自己要发送SYN请求信息，SYN=1，seq=Y(随机一个32位长的序列号)，服务器将所有信息（SYN+ACK包）发送到客户端，服务器进入SYN_RECV状态
 * 第三次握手：客户端接收到报文段（SYN+ACK包），将ack=Y+1, seq=Z(接收到的ack的值)+1;向服务器发送包ACK，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手
 
+##### 个人白话理解如下
+* A向B发一个随机X
+* B接收到X，B做出X+1是准备告诉A，B能识别A传来的数据，同时B传给A一个随机Y
+* A接收到Y，同时给B传输Y+1告诉B，A能识别B的数据，接下来可以进行数据传输并且达到双方有效接收
+
 ![](https://img-blog.csdn.net/20180717204202563?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM4OTUwMzE2/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
