@@ -1,18 +1,25 @@
 const EOF = void 0;
 class HTMLLexicalParser {
+  originalString: string;
+  tokens: object[];
+  currentToken: object|null;
+  state: any;
+  error: any;
+
   constructor(str) {
     this.originalString = str;
     this.tokens = [];
-    this.pos = 0;
-    this.currentToken = '';
+    this.currentToken = null;
     this.state = null;
   }
 
-  getInput(char) {
-    this.addCurToken(char);
+
+
+  getInput(char: string) {
+    // this.addCurToken(char);
     switch(char) {
       case "<": 
-        // 识别为标签开始，进入标签状态
+        // 识别为标签开始，进入标签开始状态
         return this.tagOpenState;
       // case "": 
       //   //todo
@@ -23,14 +30,14 @@ class HTMLLexicalParser {
     }
   }
 
-  tagOpenState(char) {
-    this.addCurToken(char);
+  tagOpenState(char: string) {
     // 注释
     if (char === "!") { 
       return this.noteState;
     }
     // 标签名
     else if (/[A-z]/.test(char)) {
+      this.addCurToken(char, 'tagName');
       return this.tagNameState;
     }
     //不识别
@@ -38,20 +45,30 @@ class HTMLLexicalParser {
     }
   }
 
-  noteState(char) {
+  noteState(char: string) {
     
   }
 
-  tagNameState(char) {
-    this.addCurToken(char);
-    if (/[A-z]/.test(char)) {
+  tagNameState(char: string) {
+    if (/[A-z]/.test(char)) { // 标签名
+      this.addCurToken(char, 'tagName');
       return this.tagNameState;
+    } else if (/\s/.test(char)) { // 空格、换行等
+      return this.attrState;
+    } else if (char === '>') { // 函数结束
+
+    } else if (char === '/') { // 函自关闭
+    } else { // 不识别
+      this.error('')
     }
   }
 
-  addCurToken(char) {
+  attrState(char: string) {
+    
+  }
+
+  addCurToken(char: string, type: string) {
     this.currentToken += char;
-    this.pos += 1;
   }
 
 
@@ -59,7 +76,6 @@ class HTMLLexicalParser {
     this.state = this.getInput;
     for (let char of this.originalString) {
       this.state = this.state(char);
-      console.log(this.currentToken);
     }
     return this.tokens;
   }
