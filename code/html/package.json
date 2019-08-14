@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "tsc lexer.ts && node lexer.js"
+  },
+  "dependencies": {
+    "typescript": "^3.5.3"
+  }
+}
