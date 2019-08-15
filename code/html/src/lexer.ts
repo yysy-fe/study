@@ -1,105 +1,5 @@
-const EOF = void 0;
-function append (key: string, value: any): void {
-  this[key] = this[key] + value;
-}
 
-interface String {
-  _isEqualSymb: () => {};
-  _isBiggerSymb: () => {};
-  _isSmallerSymb: () => {};
-  _isSlash: () => {};
-  _isBlank: () => {};
-  _isExclamation: () => {};
-  _isDash: () => {};
-  _isLetter: () => {};
-  _isNumOrLetter: () => {};
-}
-
-String.prototype._isEqualSymb = function (): boolean {
-  return this == '=';
-};
-
-String.prototype._isBiggerSymb = function (): boolean {
-  return this == '>';
-};
-
-String.prototype._isSmallerSymb = function (): boolean {
-  return this == '<';
-};
-
-String.prototype._isSlash = function (): boolean {
-  return this == '/';
-};
-
-String.prototype._isBlank = function (): boolean {
-  return this == ' ';
-};
-
-String.prototype._isExclamation = function (): boolean {
-  return this == '!';
-};
-
-String.prototype._isDash = function (): boolean {
-  return this == '-';
-};
-
-String.prototype._isLetter = function (): boolean {
-  return /[A-z]/.test(this);
-};
-
-
-String.prototype._isNumOrLetter = function (): boolean {
-  return /[A-z0-9]/.test(this);
-};
-
-class Prop {
-  name: string;
-  value: string;
-  append (key: string, value: any): void {
-    this[key] = this[key] === void 0 ? value : this[key] + value;
-  };
-}
-
-class Token {
-  name: string;
-  props?: Prop[];
-  type: string;
-  selfClosed?: boolean;
-  append (key: string, value: any): void {
-    this[key] = this[key] + value;
-  };
-
-  constructor(initName: string, type: string ) {
-    this.name = initName;
-    this.type = type;
-  }
-}
-
-class NoteTagToken extends Token {
-  constructor(name: string) {
-    super(name, 'note-tag');
-    this.props = [];
-  }
-}
-
-class StartTagToken extends Token {
-  constructor(name: string) {
-    super(name, 'start-tag');
-    this.props = [];
-  }
-};
-
-class EndTagToken extends Token {
-  constructor(name: string) {
-    super(name, 'end-tag');
-  }
-}
-
-class TextToken extends Token {
-  constructor(name: string) {
-    super(name, 'text-node')
-  }
-}
+import { StartTagToken, NoteTagToken, EndTagToken, TextToken, Prop } from './base';
 
 class HTMLLexicalParser {
   originalString: string;
@@ -108,7 +8,7 @@ class HTMLLexicalParser {
   token: StartTagToken | NoteTagToken | EndTagToken | TextToken | null;
   state: any;
 
-  constructor(str: string) {
+  constructor(str: string = '') {
     this.originalString = str;
     this.tokens = [];
     this.prop = null;
@@ -284,7 +184,7 @@ class HTMLLexicalParser {
       return this.tagSelfCloseState;
     } else if (char._isBiggerSymb()) {
       // 有一个属性无等号时标签结束，该属性值默认为 true
-      this.prop.append('value', true);
+      this.prop.append('value', 'true');
       return this.getInput;
     } else {
       this.error('属性名状态' + char);
@@ -384,16 +284,6 @@ class HTMLLexicalParser {
   } 
 }
 
-
-const testHTML:string = `<html maaa=a >
-    <head x>
-        <title>cool</title>
-    </head>
-    <body>
-        <img src=b />
-    </body>
-</html>`;
-
-let lexer = new HTMLLexicalParser(testHTML);
-let tokens = lexer.tokenize();
-console.log('tokens', tokens)
+export {
+  HTMLLexicalParser,
+};
