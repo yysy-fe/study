@@ -90,6 +90,12 @@ class NoteTagToken extends Token {
   }
 }
 
+class BlankToken extends Token {
+  constructor(name: string) {
+    super(name, 'blank-token');
+  }
+}
+
 class StartTagToken extends Token {
   constructor(name: string) {
     super(name, 'start-tag');
@@ -114,5 +120,7 @@ export  {
   EndTagToken,
   NoteTagToken,
   TextToken,
+  BlankToken,
   Prop,
+  Token
 };

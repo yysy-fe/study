@@ -1,5 +1,5 @@
 
-import { StartTagToken, NoteTagToken, EndTagToken, TextToken, Prop } from './base';
+import { StartTagToken, NoteTagToken, EndTagToken, TextToken, Prop, BlankToken } from './base';
 
 class HTMLLexicalParser {
   originalString: string;
@@ -261,11 +261,18 @@ class HTMLLexicalParser {
     }
   }
 
+  checkBlank(): void {
+    if (this.token instanceof TextToken && this.token.name.trim() === '') {
+      this.token = new BlankToken(this.token.name);
+    }
+  }
+  
   emitToken() {
     if (this.prop) {
       this.emitProp();
     }
     if (this.token) {
+      this.checkBlank();
       this.tokens.push(this.token);
       this.token = null;
     }
