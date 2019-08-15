@@ -171,7 +171,6 @@ class HTMLLexicalParser {
 
   // 初始状态 || 标签结束状态
   getInput(char: string) {
-    debugger;
     if (char._isSmallerSymb()) {
       this.emitToken();
       return this.tagOpenState;
@@ -257,6 +256,7 @@ class HTMLLexicalParser {
       return this.attrStartState;
     } else if (char._isSlash()) {
       // 标签自关闭
+      return this.tagSelfCloseState;
     } else if (char._isBiggerSymb()) {
       // 标签结束
       this.emitToken();
@@ -311,7 +311,10 @@ class HTMLLexicalParser {
       // 一个属性结束
       this.emitProp();
       return this.attrStartState;
-    } else if (char._isBiggerSymb()) {
+    } else if (char._isSlash()) {
+      // 标签自关闭
+      return this.tagSelfCloseState;
+    }  else if (char._isBiggerSymb()) {
       // 标签结束
       this.emitToken();
       return this.getInput;
@@ -391,5 +394,6 @@ const testHTML:string = `<html maaa=a >
     </body>
 </html>`;
 
-let tokens = new HTMLLexicalParser(testHTML).tokenize();
-console.log('tokens', JSON.stringify(tokens))
+let lexer = new HTMLLexicalParser(testHTML);
+let tokens = lexer.tokenize();
+console.log('tokens', tokens)
