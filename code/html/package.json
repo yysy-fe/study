@@ -1,9 +1,14 @@
 {
+  "name": "html",
+  "version": "1.0.0",
+  "description": "lexer and parser",
+  "main": "index.js",
   "scripts": {
-    "start": "tsc -w  && http-server"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "syshenyang",
+  "license": "ISC",
   "dependencies": {
-    "http-server": "^0.11.1",
-    "typescript": "^3.5.3"
+    "create-react-app": "^3.1.1"
   }
 }

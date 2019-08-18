@@ -7,7 +7,7 @@ class Node {
   selfClosed?: boolean;
   childrenNodes?: Node[];
 
-  constructor(initProps) {
+  constructor(initProps: any) {
     const { name, type, props, selfClosed, childrenNodes } = initProps;
     this.name = name;
     this.type = type;
@@ -16,12 +16,13 @@ class Node {
     childrenNodes && (this.childrenNodes = childrenNodes);
   }
 
-  appendChild(node: Node = null): void {
+  appendChild(node: Node): Node {
     if (node && this.childrenNodes) {
       this.childrenNodes.push(node);
     } else if (!this.childrenNodes && node) {
       this.childrenNodes = [node];
     }
+    return node;
   }
 }
 
@@ -31,7 +32,7 @@ class HTMLSyntaticalParser {
   stack: Node[];
   node: Node | null;
 
-  constructor(tokens: []) {
+  constructor(tokens: any) {
     this.tokens = tokens;
     this.stack = [
       new Node({
@@ -43,26 +44,32 @@ class HTMLSyntaticalParser {
     this.node = null;
   }
 
-  
+  getTop() {
+    return this.stack[this.stack.length - 1];
+  }
 
-  parse() {
-    console.log('this.tokens', this.tokens)
+  parse(cb) {
     this.tokens.forEach((v: Token, i) => {
       if (v instanceof StartTagToken) {
         const node = new Node(v);
-        this.stack.unshift(node);
+        this.stack.push(this.getTop().appendChild(node));
+        if (v.selfClosed) {
+          this.stack.pop();
+        }
       } else if (v instanceof TextToken) {
-        if (this.stack[0] instanceof TextToken) {
-          this.stack[0].name = this.stack[0].name + v.name;
+        if (this.getTop() instanceof TextToken) {
+          this.getTop().name = this.getTop().name + v.name;
         }
         else {
           const node = new Node(v);
-          this.stack.unshift(node);
+          this.getTop().appendChild(node)
         }
       } else if (v instanceof EndTagToken) {
-        
+        this.stack.pop();
       }
+      cb && cb(this);
     });
+    return this.stack[0];
   }
 }
 

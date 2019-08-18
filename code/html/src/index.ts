@@ -14,4 +14,4 @@ let lexer = new HTMLLexicalParser(testHTML);
 let tokens = lexer.tokenize();
 let parser = new HTMLSyntaticalParser(tokens);
 let ASTTree = parser.parse();
-// console.log('tokens', tokens)
+console.log('ASTTree', ASTTree)

@@ -70,7 +70,7 @@ type TokenKey = keyof TokenProps;
 
 class Token {
   name: string;
-  props?: Prop[];
+  props?: Array<Prop | null>;
   type: string;
   selfClosed?: boolean;
   append (key: TokenKey, value: string): void {

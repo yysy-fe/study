@@ -3,8 +3,8 @@ import { StartTagToken, NoteTagToken, EndTagToken, TextToken, Prop, BlankToken }
 
 class HTMLLexicalParser {
   originalString: string;
-  tokens: object[];
-  prop: Prop;
+  tokens: any[];
+  prop: Prop | null;
   token: StartTagToken | NoteTagToken | EndTagToken | TextToken | null;
   state: any;
 
