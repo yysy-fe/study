@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { HTMLLexicalParser } from './common/lexer';
-import { HTMLSyntaticalParser } from './common/parser';
 import TokenRender from './components/tokenRender';
 import ASTRender from './components/ASTRender';
 import "./App.less"
@@ -19,8 +18,7 @@ class App extends Component {
     super();
     this.state = {
       htmlString,
-      tokens: [],
-      ASTTree: {}
+      tokens: []
     }
   }
 
@@ -28,16 +26,13 @@ class App extends Component {
     const { htmlString } = this.state;
     const lexer = new HTMLLexicalParser(htmlString);
     const tokens = lexer.tokenize();
-    const parser = new HTMLSyntaticalParser(tokens);
-    const ASTTree = parser.parse();
     this.setState({
       tokens,
-      ASTTree
     })
   }
 
   render() {
-    const { tokens, ASTTree, htmlString } = this.state;
+    const { tokens, htmlString } = this.state;
     return (
       <div className="react-container">
         <div className="source-content">
@@ -47,7 +42,7 @@ class App extends Component {
         </div>
         <div className="result-content">
           <TokenRender tokens={tokens} />
-          <ASTRender ASTTree={ASTTree} />
+          <ASTRender tokens={tokens} />
         </div>
       </div>
     )
