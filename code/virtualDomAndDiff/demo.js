@@ -1,6 +1,7 @@
 const { oldTreeMock, newTreeMock } = require("./mockASTTree");
 const Element = require("./element");
-const { diff } = require("./diff")
+const { diff } = require("./diff");
+const { patch } = require("./patch");
 
 const cc = (...arr) => {console.log.call(undefined, arr)};
 
@@ -22,6 +23,7 @@ let oldTree = AST2VirtualDom(oldTreeMock);
 let newTree = AST2VirtualDom(newTreeMock);
 
 
-const patchs = diff(oldTree, newTree);
-console.log('patchs', patchs);
+const patches = diff(oldTree, newTree);
+patch(document.getElementById("app"), patches)
 
+oldTree = newTree;

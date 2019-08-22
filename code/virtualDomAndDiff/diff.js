@@ -5,7 +5,7 @@ const { INSERT, DELETE, PROPS, TEXT, REORDER } = TYPE_MAP;
 class Diff {
   constructor(oldTree, newTree) {
     this.nodeIndex = 0;
-    this.patchs = {};
+    this.patches = {};
     this.propPatchs = [];
     this.oldTree = oldTree;
     this.newTree = newTree;
@@ -17,11 +17,11 @@ class Diff {
 
   diff() {
     this.dfs(this.oldTree, this.newTree);
-    return this.patchs;
+    return this.patches;
   }
 
   dfs(oldNode, newNode) {
-    this.patchs[this.nodeIndex] = [];
+    this.patches[this.nodeIndex] = [];
     // this.nodeIndex++;
     if (this.tagNameDiff(oldNode, newNode)) {
       let propDiffRes = this.propsDiff(oldNode, newNode, []);
@@ -45,7 +45,7 @@ class Diff {
     newList.forEach((node, newIndex) => {
       let lastIndex = 0; //初始为0
       this.nodeIndex++;
-      this.patchs[this.nodeIndex] = [];
+      this.patches[this.nodeIndex] = [];
       // oldIndex: 旧列表中的位置； newIndex：新列表中的位置
       let oldIndex = this.hasNode(oldList, node);
       if (oldIndex === void 0) {
@@ -85,7 +85,7 @@ class Diff {
         });
       }
     })
-    this.patchs[nodeIndex].push(...result);
+    this.patches[nodeIndex].push(...result);
   }
 
   hasNode(list, item) {
@@ -135,7 +135,7 @@ class Diff {
   }
 
   addPropsPatch(propPatchs) {
-    this.patchs[this.nodeIndex].push({
+    this.patches[this.nodeIndex].push({
       type: PROPS,
       propsPatch: propPatchs
     });
@@ -149,8 +149,8 @@ class Diff {
       type: INSERT,
       node: newNode,
     };
-    this.patchs[this.nodeIndex].push(deleteOldNodePatch);
-    this.patchs[this.nodeIndex].push(insertNewNodePatch);
+    this.patches[this.nodeIndex].push(deleteOldNodePatch);
+    this.patches[this.nodeIndex].push(insertNewNodePatch);
   }
 }
 
