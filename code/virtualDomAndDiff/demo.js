@@ -22,4 +22,6 @@ let oldTree = AST2VirtualDom(oldTreeMock);
 let newTree = AST2VirtualDom(newTreeMock);
 
 
+const patchs = diff(oldTree, newTree);
+console.log('patchs', patchs);
 

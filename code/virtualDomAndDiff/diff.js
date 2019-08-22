@@ -1,4 +1,3 @@
-const { listDiff } = require('./listDiff');
 const { TYPE_MAP } = require("./util");
 const { INSERT, DELETE, PROPS, TEXT, REORDER } = TYPE_MAP;
 
@@ -10,86 +9,154 @@ class Diff {
     this.propPatchs = [];
     this.oldTree = oldTree;
     this.newTree = newTree;
-    this.oldNode = oldTree;
-    this.newNode = newTree;
+    // this.oldNode = oldTree;
+    // this.newNode = newTree;
+    // this.oldList = [];
+    // this.newList = [];
   }
 
-  dfs() {
+  diff() {
+    this.dfs(this.oldTree, this.newTree);
+    return this.patchs;
+  }
+
+  dfs(oldNode, newNode) {
     this.patchs[this.nodeIndex] = [];
-    if (this.tagNameDiff()) {
-      if (this.propsDiff()) {
-        this.childrenDiff();
+    // this.nodeIndex++;
+    if (this.tagNameDiff(oldNode, newNode)) {
+      let propDiffRes = this.propsDiff(oldNode, newNode, []);
+      if (propDiffRes.length === 0) {
+        this.childrenDiff(oldNode.children, newNode.children);
       }
       else {
         // props不同
-        this.addPropsPatch();
+        this.addPropsPatch(propDiffRes);
       }
     }
     else {
       // tagName不同
-      this.addReplacePatch();
+      this.addReplacePatch(newNode);
     }
   }
 
-  diff() {
-    this.dfs();
+  childrenDiff(oldList, newList) {
+    let result = [];
+    let nodeIndex = this.nodeIndex
+    newList.forEach((node, newIndex) => {
+      let lastIndex = 0; //初始为0
+      this.nodeIndex++;
+      this.patchs[this.nodeIndex] = [];
+      // oldIndex: 旧列表中的位置； newIndex：新列表中的位置
+      let oldIndex = this.hasNode(oldList, node);
+      if (oldIndex === void 0) {
+        // 新节点，直接插入
+        result.push({
+          type: INSERT,
+          node,
+        });
+      }
+      else if (typeof node === 'string') {
+        return
+      } else {
+        this.dfs(oldList[oldIndex], node);
+        // 旧list中存在
+        if (newIndex <= oldIndex) {
+          // node在新列表中位置 小于等于 在旧列表中的位置时 -> 保持不动；因为旧列表前面的元素之后会移动到后方或者删除
+        }
+        else {
+          // node在新列表中位置 大于 在旧列表中的位置时 -> 移动； 旧列表中from oldIndex to lastIndex后面； 
+          result.push({
+            type: REORDER,
+            from: oldIndex,
+            to: newIndex,
+          })
+        }
+      }
+      lastIndex = Math.max(newIndex, lastIndex);
+    });
+
+    // 过滤掉删除的元素
+    oldList.forEach((node, oldIndex) => {
+      let newIndex = this.hasNode(newList, node);
+      if (newIndex === void 0) {
+        result.push({
+          type: DELETE,
+          delPos: oldIndex
+        });
+      }
+    })
+    this.patchs[nodeIndex].push(...result);
   }
 
-  childrenDiff() {
-    listDiff(this.oldNode.children, this.newNode.children);
+  hasNode(list, item) {
+    let index = void 0;
+    for (let i = 0, len = list.length; i < len; i++) {
+      let oldItem = list[i];
+      if (typeof item === 'string' || typeof oldItem === 'string') {
+        if (item === oldItem) {
+          index = i;
+          break;
+        }
+      } else if (oldItem.props.key === item.props.key && oldItem.props.key !== void 0) {
+        index = i;
+        break;
+      }
+    }
+    return index;
   }
 
-  tagNameDiff() {
-    return this.oldNode.tagName === this.newNode.tagName;
+
+  tagNameDiff(oldNode, newNode) {
+    return oldNode.tagName === newNode.tagName;
   }
 
-  propsDiff() {
-    for (let key in this.oldNode.props) {
-      let oldProp = this.oldNode.props[key];
-      if (this.newNode.props[key] !== oldProp) {
+  propsDiff(oldNode, newNode, propPatchs) {
+    for (let key in oldNode.props) {
+      let oldProp = oldNode.props[key];
+      if (newNode.props[key] !== oldProp) {
         // 情况一：新节点更改了属性值
         // 情况二：新节点没有该属性， 值为undefined, 后续删除值为undefined的attr
-        this.propPatchs.push({
-          key: this.newNode.props[key]
+        propPatchs.push({
+          key: newNode.props[key]
         });
       }
     }
 
-    for (let key in this.newNode.props) {
-      if (this.oldNode.props[key] === undefined) {
+    for (let key in newNode.props) {
+      if (oldNode.props[key] === undefined) {
         // 新增属性
-        this.propPatchs.push({
-          key: this.newNode.props[key]
+        propPatchs.push({
+          key: newNode.props[key]
         });
       }
     }
 
-    return this.propPatchs.length.length === 0;
+    return propPatchs;
   }
 
-  addPropsPatch() {
+  addPropsPatch(propPatchs) {
     this.patchs[this.nodeIndex].push({
       type: PROPS,
-      propsPatch: this.propPatchs
+      propsPatch: propPatchs
     });
-    this.propPatchs = [];
   }
 
-  addReplacePatch() {
+  addReplacePatch(newNode) {
     const deleteOldNodePatch = {
       type: DELETE
     };
     const insertNewNodePatch = {
       type: INSERT,
-      node: this.newNode,
+      node: newNode,
     };
     this.patchs[this.nodeIndex].push(deleteOldNodePatch);
     this.patchs[this.nodeIndex].push(insertNewNodePatch);
   }
 }
 
-class Patchs {
-  constructor() {
-    
+module.exports = {
+  diff: (oldTree, newTree) => {
+    let differ = new Diff(oldTree, newTree);
+    return differ.diff();
   }
 }
