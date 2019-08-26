@@ -3,7 +3,7 @@ class Element {
     this.tagName = tagName;
     this.props = props || {};
     // this.key = props ? props.key : void 0;
-    this.children = children;
+    this.children = children || [];
   }
 
   render() {
