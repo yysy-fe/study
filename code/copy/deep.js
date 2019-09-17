@@ -109,8 +109,6 @@ const realClone = (target) => {
       cloneNode.push(realClone(v));
     })
   }
-
-  
  
   if (type === objectTag) {
     // 防止对象循环引用
