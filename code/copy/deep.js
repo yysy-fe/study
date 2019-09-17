@@ -103,17 +103,20 @@ const realClone = (target) => {
     });
   }
 
+  // 数组类型
   if (type === arrayTag) {
     target.forEach(v => {
       cloneNode.push(realClone(v));
     })
   }
 
-  if (map.has(target)) {
-    return target;
-  }
+  
  
   if (type === objectTag) {
+    // 防止对象循环引用
+    if (map.has(target)) {
+      return target;
+    }
     map.set(target, true)
     for (let key of Reflect.ownKeys(target)) {
       cloneNode[realClone(key)] = realClone(target[key]);
