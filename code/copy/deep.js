@@ -137,5 +137,5 @@ a[sym] = "symbol";
 a.d = a;
 
 let c = clone(a);
-console.log(a);
-console.log(c);
+console.log(a.d === a, a);
+console.log(c.d === c, c);
