@@ -6,6 +6,12 @@ const isDeep = {
   '[object Arguments]': true,
 };
 
+const mapTag = '[object Map]';
+const setTag = '[object Set]';
+const arrayTag = '[object Array]';
+const objectTag = '[object Object]';
+const argsTag = '[object Arguments]';
+
 const boolTag = '[object Boolean]';
 const dateTag = '[object Date]';
 const numberTag = '[object Number]';
@@ -17,7 +23,7 @@ const funcTag = '[object Function]';
 
 const isShallow = target => {
   const type = typeof target;
-  return type !== 'object' && type !== 'function'  
+  return (type !== 'object' && type !== 'function') || type === 'symbol';
 };
 
 const getType = target => {
@@ -33,12 +39,14 @@ const copyReg = target => {
   return new target.constructor(source, flags);
 };
 
-const copySymbol = target => {
-
-};
-
 const copyFunction = target => {
-
+  const funcStr = target.toString();
+  let paramsRes = funcStr.match(/\((.*)\)/);
+  let paramsStr = paramsRes && paramsRes[1] && paramsRes[1].replace(/ /g, '') || '';
+  let paramArr = paramsStr.split(',');
+  let contentRes = funcStr.match(/function.*\(.*\)\s*\{([\s\S]*)\}/);
+  let contentStr = contentRes && contentRes[1] && contentRes[1].trim() || '';
+  return new target.constructor(...paramArr, contentStr)
 };
 
 const cloneOtherType = (target, type) => {
@@ -52,8 +60,6 @@ const cloneOtherType = (target, type) => {
       return new Ctor(target);
     case regexpTag:
       return copyReg(target);
-    case symbolTag: 
-      return copySymbol(target);
     case funcTag:
       return copyFunction(target);
     default:
@@ -61,16 +67,74 @@ const cloneOtherType = (target, type) => {
   }
 };
 
-const clone = (target) => {
+let map = new WeakMap();
+
+const clone = target => {
+  // 一定要在clone前先把根对象缓存
+  map.set(target, true);
+  return realClone(target);
+}
+
+const realClone = (target) => {
   if (isShallow(target)) {
     return target;
   }
+
   const type = getType(target);
   let cloneNode;
   if (isDeep[type]) {
     cloneNode = getInit(target);
   }
   else {
-    cloneNode = cloneOtherType(target, type);
+    return cloneOtherType(target, type);
   }
+
+  // map类型
+  if (type === mapTag) {
+    target.forEach((v, k) => {
+      cloneNode.set(realClone(k), realClone(v));
+    })
+  }
+
+  // set类型
+  if (type === setTag) {
+    target.forEach(v => {
+      cloneNode.add(realClone(v));
+    });
+  }
+
+  if (type === arrayTag) {
+    target.forEach(v => {
+      cloneNode.push(realClone(v));
+    })
+  }
+
+  if (map.has(target)) {
+    return target;
+  }
+ 
+  if (type === objectTag) {
+    map.set(target, true)
+    for (let key of Reflect.ownKeys(target)) {
+      cloneNode[realClone(key)] = realClone(target[key]);
+    }
+  }
+
+  return cloneNode;
 };
+
+const sym = Symbol('testB');
+
+let a = {
+  a: function (a, b) {
+    console.log(a,b);
+  },
+  b: 'b',
+  c: [1, 2, {a: 1}],
+};
+a[sym] = "symbol";
+a.d = a;
+
+let c = clone(a);
+console.log(a);
+console.log(c);
