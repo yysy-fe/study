@@ -123,8 +123,9 @@ const realClone = (target) => {
   return cloneNode;
 };
 
-const sym = Symbol('testB');
 
+// 用例demo
+const sym = Symbol('testB');
 let a = {
   a: function (a, b) {
     console.log(a,b);
