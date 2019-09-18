@@ -6,6 +6,5 @@ Function.prototype.myBind = function (context, ...args) {
     } else {
       return this.apply(context, param);
     }
-    
   }
 }
