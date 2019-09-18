@@ -20,22 +20,22 @@ class MyPromise {
     this.reason = null;
     this.resolveFnList = [];
     this.rejectFnList = [];
-    const resolve = (...args) => {
-        this.state = FULFILLED;
-        this.value = args;
-        setTimeout(() => {
-        this.resolveFnList.forEach(fn => {
-          fn(this.value);
+    const resolve = (param) => {
+      this.state = FULFILLED;
+      this.value = param;
+      setTimeout(() => {
+        this.resolveFnList.forEach(resFn => {
+          resFn(this.value);
         });
       }, 0)
     }
 
-    const reject = (...args) => {
-        this.state = REJECTED;
-        this.reason = args;
-        setTimeout(() => {
-        this.rejectFnList.forEach(fn => {
-          fn(this.reason);
+    const reject = (param) => {
+      this.state = REJECTED;
+      this.reason = param;
+      setTimeout(() => {
+        this.rejectFnList.forEach(rejFn => {
+          rejFn(this.reason);
         });
       }, 0)
     }
@@ -45,44 +45,69 @@ class MyPromise {
 
   then (resFn, rejFn) {
     if (typeof resFn !== 'function') {
-      resFn = () => {
-        return this;
+      resFn = (value) => {
+        return value;
       };
     }
     if (typeof rejFn !== 'function') {
-      rejFn = () => {
-        throw this.reason;
+      rejFn = (reason) => {
+        throw reason;
       }
     }
-    this.resolveFnList.push(asyncGenerator(resFn));
-    this.rejectFnList.push(asyncGenerator(rejFn));
+    let returnPromise = new MyPromise((resolve, reject) => {
+      if (this.state === FULFILLED) {
+        setTimeout(() => {
+          try {
+            resolve(resFn(this.value))
+          } catch (e) {
+            reject(e);
+          }
+        }, 0)
+      } else if (this.state === REJECTED) {
+        setTimeout(() => {
+          try {
+            reject(rejFn(this.reason))
+          } catch (e) {
+            reject(e);
+          }
+        }, 0)
+      } else {
+        this.resolveFnList.push(() => {
+          try {
+            resolve(resFn(this.value))
+          } catch (e) {
+            reject(e);
+          }
+        });
+  
+        this.rejectFnList.push(() => {
+          try {
+            reject(rejFn(this.reason))
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+    });
+
+    return returnPromise;
   }
 
   catch (rejFn) {
-    if (this.rejectFnList.length > 0) {
-      return;
-    }
-    if (typeof rejFn !== 'function') {
-      rejFn = () => {
-        throw this.reason;
-      }
-    }
-    this.rejectFnList.push(asyncGenerator(rejFn));
+    return this.then(null, rejFn);
   }
 }
 
 let a = new MyPromise((res, rej) => {
     console.log('now');
-    rej("errrrr");
+    res("xxx");
 });
 
-console.log(a)
-
-a.then(msg => {
-  console.log('res', msg);
-}, e=> {console.log('thenerror', e)})
-// .catch(e => {
-//   console.log('catcherror', e)
-// });
+a.then().then().then(msg => {
+  console.log('then', msg);
+})
+.catch(e => {
+  console.log('catcherror', e)
+});
 
 console.log('应该在then前面');
