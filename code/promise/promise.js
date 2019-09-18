@@ -23,21 +23,17 @@ class MyPromise {
     const resolve = (param) => {
       this.state = FULFILLED;
       this.value = param;
-      setTimeout(() => {
-        this.resolveFnList.forEach(resFn => {
-          resFn(this.value);
-        });
-      }, 0)
+      this.resolveFnList.forEach(resFn => {
+        resFn(this.value);
+      });
     }
 
     const reject = (param) => {
       this.state = REJECTED;
       this.reason = param;
-      setTimeout(() => {
-        this.rejectFnList.forEach(rejFn => {
-          rejFn(this.reason);
-        });
-      }, 0)
+      this.rejectFnList.forEach(rejFn => {
+        rejFn(this.reason);
+      });
     }
     fn(resolve, reject);
     return this;
@@ -72,21 +68,21 @@ class MyPromise {
           }
         }, 0)
       } else {
-        this.resolveFnList.push(() => {
+        this.resolveFnList.push(asyncGenerator(() => {
           try {
             resolve(resFn(this.value))
           } catch (e) {
             reject(e);
           }
-        });
+        }));
   
-        this.rejectFnList.push(() => {
+        this.rejectFnList.push(asyncGenerator(() => {
           try {
             reject(rejFn(this.reason))
           } catch (e) {
             reject(e);
           }
-        });
+        }));
       }
     });
 
