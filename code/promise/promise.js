@@ -50,12 +50,15 @@ class MyPromise {
         throw reason;
       }
     }
+
+    // then返回一个promise不是自身， 如果return this，就是一个promise那resolveFnList会有很多方法
     let returnPromise = new MyPromise((resolve, reject) => {
       if (this.state === FULFILLED) {
         setTimeout(() => {
           try {
             resolve(resFn(this.value))
           } catch (e) {
+            //所有的异常都要走reject
             reject(e);
           }
         }, 0)
@@ -68,6 +71,7 @@ class MyPromise {
           }
         }, 0)
       } else {
+        // 把then传进来的第一个方法 放在returnPromise的resolve中，包装成异步函数放到resolveFnList中，等到原promise resolve时再触发
         this.resolveFnList.push(asyncGenerator(() => {
           try {
             resolve(resFn(this.value))
@@ -76,6 +80,7 @@ class MyPromise {
           }
         }));
   
+        // 把then传进来的第二个方法 放在returnPromise的reject中
         this.rejectFnList.push(asyncGenerator(() => {
           try {
             reject(rejFn(this.reason))
